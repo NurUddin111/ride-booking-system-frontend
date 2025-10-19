@@ -16,7 +16,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import Logo from "@/assets/icons/Logo";
-// import Logo from "@/assets/icons/Logo";
+import { Link, useLocation } from "react-router";
 
 // Navigation links array to be used in both desktop and mobile menus
 const navigationLinks = [
@@ -58,6 +58,7 @@ const navigationLinks = [
 ];
 
 const Header = () => {
+  const location = useLocation();
   return (
     <header className="border-b px-4 md:px-6">
       <div className="flex h-16 items-center justify-between gap-4">
@@ -253,12 +254,22 @@ const Header = () => {
         </div>
         {/* Right side */}
         <div className="flex items-center gap-2">
-          <Button asChild variant="link" size="sm" className="text-sm">
-            <a href="#">Sign In</a>
-          </Button>
-          <Button asChild size="sm" className="text-sm">
-            <a href="#">Sign Up</a>
-          </Button>
+          <Link
+            to="api/v1/user/login"
+            state={{ backgroundLocation: location }}
+            className="px-4 py-2 border rounded-lg hover:bg-primary/10"
+          >
+            Sign In
+          </Link>
+          {/* <Button asChild size="sm" className="text-sm"> */}
+          {/* </Button> I may need Later */}
+          <Link
+            to="api/v1/user/signup"
+            state={{ backgroundLocation: location }}
+            className="px-4 py-2 border rounded-lg hover:bg-primary/10"
+          >
+            Sign Up
+          </Link>
         </div>
       </div>
     </header>
