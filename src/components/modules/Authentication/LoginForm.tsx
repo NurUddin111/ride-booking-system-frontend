@@ -12,13 +12,65 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useNavigate } from "react-router";
+import { useForm } from "react-hook-form";
 import { motion, AnimatePresence } from "framer-motion";
 import Logo from "@/assets/icons/Logo";
 import { RiGoogleFill } from "@remixicon/react";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+
+const formSchema = z.object({
+  name: z.string().min(2, {
+    message: "Name must be at least 2 characters.",
+  }),
+  email: z.email().min(5, {
+    message: "Email must be at least 5 characters.",
+  }),
+});
 
 const LoginForm = () => {
   const id = useId();
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      name: "",
+    },
+  });
   const navigate = useNavigate();
+  // const [createUser, { isLoading, isError }] = useCreateUserMutation();
+
+  // if (isError)
+  //   return (
+  //     <div>
+  //       <h1>Failed to create user</h1>
+  //     </div>
+  //   );
+  // if (isLoading)
+  //   return (
+  //     <div className="flex justify-center items-center h-[60vh]">
+  //       <h1>Loading...</h1>
+  //     </div>
+  //   );
+
+  const onSubmit = async (userDetails: z.infer<typeof formSchema>) => {
+    try {
+      // await createUser(userDetails).unwrap();
+      form.reset();
+      console.log("Email Sent");
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
     <Dialog defaultOpen onOpenChange={() => navigate("/")}>
       <DialogContent onInteractOutside={(e) => e.preventDefault()}>
@@ -51,6 +103,27 @@ const LoginForm = () => {
               </DialogDescription>
             </DialogHeader>
           </div>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Username</FormLabel>
+                    <FormControl>
+                      <Input placeholder="shadcn" {...field} />
+                    </FormControl>
+                    <FormDescription className="sr-only">
+                      This is your public display name.
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <Button type="submit">Submit</Button>
+            </form>
+          </Form>
 
           <form className="space-y-5">
             <div className="space-y-4">

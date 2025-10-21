@@ -5,15 +5,15 @@ import { createBrowserRouter } from "react-router";
 
 export const router = createBrowserRouter([
   {
-    path: "/",
+    path: "/*",
     Component: App,
     children: [
       {
         path: "api/v1/user/signup/*",
-        Component: RegistrationForm,
+        element: <RegistrationForm />,
       },
       {
-        path: "api/v1/user/login",
+        path: "api/v1/auth/login",
         Component: LoginForm,
       },
     ],
