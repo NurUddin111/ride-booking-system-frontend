@@ -10,16 +10,17 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { useSignupUserMutation } from "@/redux/baseApi";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CircleAlert } from "lucide-react";
 import { useForm } from "react-hook-form";
-import { useNavigate } from "react-router";
+import { useLocation, useNavigate } from "react-router";
 import { toast } from "sonner";
 import { z } from "zod";
 import { Spinner } from "@/components/ui/spinner";
 import Logo from "@/assets/icons/Logo";
 import { DialogDescription, DialogHeader } from "@/components/ui/dialog";
+import { useSignupUserMutation } from "@/redux/features/auth/auth.api";
+import { useState } from "react";
 
 const formSchema = z.object({
   password: z
@@ -46,6 +47,12 @@ const formSchema = z.object({
 
 const PasswordForm = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const [email] = useState(location.state);
+
+  if (!email) {
+    navigate("/");
+  }
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -103,7 +110,7 @@ const PasswordForm = () => {
                 <FormItem>
                   <FormLabel>Password</FormLabel>
                   <FormControl>
-                    <Input type="text" placeholder="John Doe" {...field} />
+                    <Input type="text" placeholder="********" {...field} />
                   </FormControl>
                   <FormDescription className="sr-only">
                     Set your password.

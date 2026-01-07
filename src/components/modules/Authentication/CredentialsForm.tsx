@@ -17,7 +17,6 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
-import { useCreateUserRequestMutation } from "@/redux/baseApi";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { RiGoogleFill } from "@remixicon/react";
 import { CircleAlert } from "lucide-react";
@@ -25,6 +24,7 @@ import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router";
 import { toast } from "sonner";
 import { z } from "zod";
+import { useCreateUserRequestMutation } from "@/redux/features/auth/auth.api";
 
 const formSchema = z.object({
   name: z.string().min(2, {
@@ -47,9 +47,10 @@ const CredentialsForm = () => {
 
   const onSubmit = async (userDetails: z.infer<typeof formSchema>) => {
     try {
-      await createUser(userDetails).unwrap();
+      const res = await createUser(userDetails).unwrap();
+      console.log(res);
       toast.success("OTP sent successfully");
-      navigate("/api/v1/user/signup/verify");
+      navigate("/api/v1/user/signup/verify", { state: res.data.email });
     } catch (error) {
       console.log(error);
     }

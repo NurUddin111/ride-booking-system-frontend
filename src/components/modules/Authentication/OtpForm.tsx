@@ -20,12 +20,13 @@ import {
   InputOTPGroup,
   InputOTPSlot,
 } from "@/components/ui/input-otp";
-import { useNavigate } from "react-router";
+import { useLocation, useNavigate } from "react-router";
 import { CircleAlert, Dot } from "lucide-react";
-import { useVerifyUserMutation } from "@/redux/baseApi";
 import { Spinner } from "@/components/ui/spinner";
 import Logo from "@/assets/icons/Logo";
 import { DialogDescription, DialogHeader } from "@/components/ui/dialog";
+import { useState } from "react";
+import { useVerifyUserMutation } from "@/redux/features/auth/auth.api";
 
 const FormSchema = z.object({
   otp: z.string().min(6, {
@@ -35,6 +36,14 @@ const FormSchema = z.object({
 
 const OtpForm = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const [email] = useState(location.state);
+
+  if (!email) {
+    navigate("/");
+  }
+
+  console.log(email);
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
@@ -45,10 +54,9 @@ const OtpForm = () => {
 
   const onSubmit = async (data: z.infer<typeof FormSchema>) => {
     try {
-      console.log(data);
       await verifyUser(data).unwrap();
       toast.success("OTP verified successfully!");
-      navigate("/api/v1/user/signup/password");
+      navigate("/api/v1/user/signup/password", { state: email });
     } catch (error) {
       console.log(error);
     }

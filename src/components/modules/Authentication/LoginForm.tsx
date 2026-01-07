@@ -1,4 +1,4 @@
-import { useId } from "react";
+import { useId, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useNavigate } from "react-router";
+import { useLocation, useNavigate } from "react-router";
 import { useForm } from "react-hook-form";
 import { motion, AnimatePresence } from "framer-motion";
 import Logo from "@/assets/icons/Logo";
@@ -27,47 +27,55 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { useSigninUserMutation } from "@/redux/features/auth/auth.api";
+import { CircleAlert } from "lucide-react";
+import { Spinner } from "@/components/ui/spinner";
+import { toast } from "sonner";
 
 const formSchema = z.object({
-  name: z.string().min(2, {
-    message: "Name must be at least 2 characters.",
-  }),
   email: z.email().min(5, {
     message: "Email must be at least 5 characters.",
+  }),
+  password: z.string().min(8, {
+    message: "Password must be at least 8 characters.",
   }),
 });
 
 const LoginForm = () => {
   const id = useId();
+  const location = useLocation();
+  const [loggedIn] = useState(location.state);
+  console.log(loggedIn);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: "",
+      email: "",
+      password: "",
     },
   });
   const navigate = useNavigate();
-  // const [createUser, { isLoading, isError }] = useCreateUserMutation();
+  const [signinUser, { isLoading, isError }] = useSigninUserMutation();
+  const [noUser, setNoUser] = useState(false);
+  const [wrongPass, setWrongPass] = useState(false);
 
-  // if (isError)
-  //   return (
-  //     <div>
-  //       <h1>Failed to create user</h1>
-  //     </div>
-  //   );
-  // if (isLoading)
-  //   return (
-  //     <div className="flex justify-center items-center h-[60vh]">
-  //       <h1>Loading...</h1>
-  //     </div>
-  //   );
-
-  const onSubmit = async (userDetails: z.infer<typeof formSchema>) => {
+  const onSubmit = async (credentials: z.infer<typeof formSchema>) => {
     try {
-      // await createUser(userDetails).unwrap();
+      await signinUser(credentials).unwrap();
       form.reset();
-      console.log("Email Sent");
-    } catch (error) {
-      console.log(error);
+      navigate("/", { state: "loggedIn" });
+      toast.success("Logged in successfully");
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      console.error(error);
+      if (error?.data.message === "No account found with this email") {
+        setNoUser(true);
+      }
+      if (error?.data.message === "Incorrect Password") {
+        setWrongPass(true);
+      }
+      if (error?.data.message === "User is deleted!") {
+        setNoUser(true);
+      }
     }
   };
 
@@ -103,82 +111,131 @@ const LoginForm = () => {
               </DialogDescription>
             </DialogHeader>
           </div>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-              <FormField
-                control={form.control}
-                name="name"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Username</FormLabel>
-                    <FormControl>
-                      <Input placeholder="shadcn" {...field} />
-                    </FormControl>
-                    <FormDescription className="sr-only">
-                      This is your public display name.
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <Button type="submit">Submit</Button>
-            </form>
-          </Form>
-
-          <form className="space-y-5">
-            <div className="space-y-4">
-              <div className="*:not-first:mt-2">
-                <Label htmlFor={`${id}-email`}>Email</Label>
-                <Input
-                  id={`${id}-email`}
-                  placeholder="john@example.com"
-                  type="email"
-                  required
-                />
-              </div>
-              <div className="*:not-first:mt-2">
-                <Label htmlFor={`${id}-password`}>Password</Label>
-                <Input
-                  id={`${id}-password`}
-                  placeholder="Enter your password"
-                  type="password"
-                  required
-                />
-              </div>
+          {isLoading && (
+            <div className="flex flex-col items-center gap-4">
+              <Button variant="outline" disabled size="sm">
+                <Spinner />
+                Logging In...
+              </Button>
             </div>
-            <div className="flex justify-between gap-2">
-              <div className="flex items-center gap-2">
-                <Checkbox id={`${id}-remember`} />
-                <Label
-                  htmlFor={`${id}-remember`}
-                  className="font-normal text-muted-foreground"
+          )}
+          {isError && noUser && (
+            <motion.div
+              initial={{ opacity: 0, y: -5 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="flex items-center gap-2 mt-2 text-sm text-red-500 bg-red-50 px-3 py-2 rounded-lg border border-red-100 shadow-sm"
+            >
+              <CircleAlert className="h-4 w-4" />
+              <span>No account found with this email!</span>
+            </motion.div>
+          )}
+          {isError && wrongPass && (
+            <motion.div
+              initial={{ opacity: 0, y: -5 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="flex items-center gap-2 mt-2 text-sm text-red-500 bg-red-50 px-3 py-2 rounded-lg border border-red-100 shadow-sm"
+            >
+              <CircleAlert className="h-4 w-4" />
+              <span>Incorrect Password</span>
+            </motion.div>
+          )}
+          {isError && !noUser && !wrongPass && (
+            <motion.div
+              initial={{ opacity: 0, y: -5 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="flex items-center gap-2 mt-2 text-sm text-red-500 bg-red-50 px-3 py-2 rounded-lg border border-red-100 shadow-sm"
+            >
+              <CircleAlert className="h-4 w-4" />
+              <span>Something Went Wrong! Please try again.</span>
+            </motion.div>
+          )}
+          {!isLoading && !isError && (
+            <>
+              <Form {...form}>
+                <form
+                  onSubmit={form.handleSubmit(onSubmit)}
+                  className="space-y-8"
                 >
-                  Remember me
-                </Label>
+                  <FormField
+                    control={form.control}
+                    name="email"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Email</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="email"
+                            placeholder="john@example.com"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormDescription className="sr-only">
+                          Enter your email address.
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="password"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Password</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="text"
+                            placeholder="********"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormDescription className="sr-only">
+                          Enter your password.
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <div className="flex justify-between gap-2">
+                    <div className="flex items-center gap-2">
+                      <Checkbox id={`${id}-remember`} />
+                      <Label
+                        htmlFor={`${id}-remember`}
+                        className="font-normal text-muted-foreground"
+                      >
+                        Remember me
+                      </Label>
+                    </div>
+                    <a
+                      className="text-sm underline hover:no-underline"
+                      href="#"
+                    >
+                      Forgot password?
+                    </a>
+                  </div>
+                  <Button type="submit" className="w-full">
+                    Sign in
+                  </Button>
+                </form>
+              </Form>
+
+              <div className="flex items-center gap-3 before:h-px before:flex-1 before:bg-border after:h-px after:flex-1 after:bg-border">
+                <span className="text-xs text-muted-foreground">Or</span>
               </div>
-              <a className="text-sm underline hover:no-underline" href="#">
-                Forgot password?
-              </a>
-            </div>
-            <Button type="button" className="w-full">
-              Sign in
-            </Button>
-          </form>
 
-          <div className="flex items-center gap-3 before:h-px before:flex-1 before:bg-border after:h-px after:flex-1 after:bg-border">
-            <span className="text-xs text-muted-foreground">Or</span>
-          </div>
-
-          <Button className="bg-[#DB4437] text-white after:flex-1 hover:bg-[#DB4437]/90 w-full">
-            <span className="pointer-events-none me-2 flex-1">
-              <RiGoogleFill
-                className="opacity-60"
-                size={16}
-                aria-hidden="true"
-              />
-            </span>
-            Login with Google
-          </Button>
+              <Button className="bg-[#DB4437] text-white after:flex-1 hover:bg-[#DB4437]/90 w-full">
+                <span className="pointer-events-none me-2 flex-1">
+                  <RiGoogleFill
+                    className="opacity-60"
+                    size={16}
+                    aria-hidden="true"
+                  />
+                </span>
+                Login with Google
+              </Button>
+            </>
+          )}
         </motion.div>
       </DialogContent>
     </Dialog>
