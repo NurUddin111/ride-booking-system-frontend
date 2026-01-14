@@ -167,7 +167,7 @@ const ViewSingleUserProfile = () => {
                 <div>
                   <p className="text-sm text-gray-500">Vehicle Model</p>
                   <p className="font-medium">
-                    {user.vehicleInfo?.vehicleModel || "N/A"}
+                    {user.vehicleInfo?.brand || "N/A"}
                   </p>
                 </div>
                 <div>

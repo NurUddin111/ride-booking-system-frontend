@@ -2,7 +2,6 @@ import App from "@/App";
 import AdminLayout from "@/components/layout/AdminLayout";
 import LoginForm from "@/components/modules/Authentication/LoginForm";
 import RegistrationForm from "@/components/modules/Authentication/RegistrationForm";
-import PendingRequests from "@/components/modules/Rides/PendingRequests";
 import RideReqForm from "@/components/modules/Rides/RideReqForm";
 import About from "@/pages/About";
 import AdminHome from "@/pages/admin/AdminHome";
@@ -103,10 +102,6 @@ export const router = createBrowserRouter([
       {
         path: "ride/request",
         Component: RideReqForm,
-      },
-      {
-        path: "ride/requests",
-        Component: PendingRequests,
       },
     ],
   },
