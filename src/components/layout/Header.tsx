@@ -17,10 +17,10 @@ import {
 import Logo from "@/assets/icons/Logo";
 import { useUserInfoQuery } from "@/redux/features/auth/auth.api";
 import type { IUser } from "@/types/user";
-import DashBoard from "./Dashboard";
 import OnOff from "../modules/Rides/OnOffStatus";
+import UserDropDownMenu from "./UserDropDown";
 
-// Public navigation
+// Public navigation (shown to everyone)
 const publicLinks = [
   { href: "/", label: "Home" },
   { href: "/features", label: "Features" },
@@ -33,6 +33,7 @@ const Header = () => {
   const location = useLocation();
   const { data } = useUserInfoQuery(undefined);
   const user = data?.data?.data as IUser | undefined;
+  console.log(user);
 
   return (
     <header className="sticky top-0 z-50 border-b bg-background/80 backdrop-blur">
@@ -91,33 +92,27 @@ const Header = () => {
 
         {/* RIGHT */}
         <div className="flex items-center gap-2">
-          {/* Unauthenticated */}
+          {/* Visitor (not logged in) */}
           {!user?.email && (
             <>
               <Button variant="ghost" asChild>
-                <Link
-                  to="/login"
-                  state={{ backgroundLocation: location }}
-                >
+                <Link to="/login" state={{ backgroundLocation: location }}>
                   Sign In
                 </Link>
               </Button>
               <Button asChild>
-                <Link
-                  to="/signup"
-                  state={{ backgroundLocation: location }}
-                >
+                <Link to="/signup" state={{ backgroundLocation: location }}>
                   Sign Up
                 </Link>
               </Button>
             </>
           )}
 
-          {/* Driver */}
+          {/* Driver only */}
           {user?.role === "DRIVER" && <OnOff user={user} />}
 
-          {/* Authenticated */}
-          {user?.email && <DashBoard userDetails={user} />}
+          {/* Any logged-in user (RIDER / DRIVER / ADMIN) */}
+          {user?.email && <UserDropDownMenu userDetails={user} />}
         </div>
       </div>
     </header>

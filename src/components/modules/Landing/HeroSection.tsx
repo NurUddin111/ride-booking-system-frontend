@@ -32,14 +32,14 @@ const HeroSection = () => {
 
             <div className="mt-10 flex flex-wrap gap-4">
               <Link
-                to="/api/v1/user/ride"
+                to="/login"
                 className="rounded-full bg-gradient-to-r from-indigo-400 to-pink-400 px-8 py-3 text-sm font-semibold text-black transition hover:scale-105"
               >
                 Start a Ride
               </Link>
 
               <Link
-                to="/api/v1/user/signup"
+                to="/login"
                 state={{ backgroundLocation: location }}
                 className="rounded-full border border-white/30 px-8 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
               >

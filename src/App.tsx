@@ -11,7 +11,7 @@ function App() {
 
       {state?.backgroundLocation && (
         <Routes>
-          <Route path="api/v1/user/signup/*" Component={RegistrationForm} />
+          <Route path="user/signup/*" Component={RegistrationForm} />
         </Routes>
       )}
     </CommonLayout>

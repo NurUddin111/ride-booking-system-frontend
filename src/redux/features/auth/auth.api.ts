@@ -53,6 +53,35 @@ export const authApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["User", "Users"],
     }),
+    becomeDriver: build.mutation({
+      query: ({ userId, vehicleInfo }) => ({
+        url: `/user/become-driver/${userId}`,
+        method: "PATCH",
+        data: vehicleInfo,
+      }),
+      invalidatesTags: ["User", "Users"],
+    }),
+    pendingDriver: build.query({
+      query: () => ({
+        url: "/user/driver-requests",
+        method: "GET",
+      }),
+      providesTags: ["Users"],
+    }),
+    approvedDrivers: build.query({
+      query: () => ({
+        url: "/user/drivers",
+        method: "GET",
+      }),
+      providesTags: ["Users"],
+    }),
+    approveDriver: build.mutation({
+      query: ({ userId }) => ({
+        url: `/user/approve-driver/${userId}`,
+        method: "PATCH",
+      }),
+      invalidatesTags: ["Users"],
+    }),
     deleteUser: build.mutation({
       query: (id) => ({
         url: `/user/delete/${id}`,
@@ -78,6 +107,10 @@ export const {
   useSigninUserMutation,
   useSignoutUserMutation,
   useUpdateUserMutation,
+  useBecomeDriverMutation,
+  usePendingDriverQuery,
+  useApprovedDriversQuery,
+  useApproveDriverMutation,
   useDeleteUserMutation,
   useAllUsersQuery,
 } = authApi;

@@ -1,4 +1,5 @@
 export interface IRide {
+  _id: string;
   riderId: string;
   totalPassengers: number;
   driverId?: string;
@@ -21,7 +22,10 @@ export interface IRide {
   };
 
   status: string;
-  distanceInKm: number;
+  destinationDistanceInKm: number;
+  pickUpDistanceInKm: number;
+  destinationEta: number;
+  driverEta: number;
   fareEstimate: {
     min: number;
     max: number;

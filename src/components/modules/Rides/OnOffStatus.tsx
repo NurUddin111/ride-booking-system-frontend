@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useId, useState } from "react";
 
 import { Label } from "@/components/ui/label";
@@ -10,7 +11,6 @@ import { toast } from "sonner";
 const OnOff = ({ user }: { user: IUser }) => {
   const id = useId();
   const userId = user?._id;
-  console.log(userId);
   const [checked, setChecked] = useState<boolean>(user.isOnline ? true : false);
   const [updateUser, { isLoading, isError }] = useUpdateUserMutation();
 
@@ -23,7 +23,6 @@ const OnOff = ({ user }: { user: IUser }) => {
         userDetails,
       }).unwrap();
       toast.success("Status Updated");
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       console.log(error);
       if (

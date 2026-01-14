@@ -25,7 +25,6 @@ const steps = [
 const HowItWorks = () => {
   return (
     <section className="relative py-28 bg-background overflow-hidden">
-      {/* background echo from hero */}
       <div className="absolute -top-20 -right-20 h-72 w-72 rounded-full bg-indigo-500/10 blur-3xl" />
 
       <div className="relative container mx-auto px-6">
@@ -40,7 +39,6 @@ const HowItWorks = () => {
 
         {/* Timeline */}
         <div className="relative">
-          {/* vertical gradient line */}
           <div className="absolute left-4 top-0 h-full w-px bg-gradient-to-b from-indigo-400 via-purple-400 to-pink-400 hidden md:block" />
 
           <div className="space-y-16">
@@ -57,7 +55,6 @@ const HowItWorks = () => {
                 <div
                   className={`relative rounded-2xl border bg-gradient-to-br ${item.accent} bg-card p-8 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl`}
                 >
-                  {/* subtle top accent line */}
                   <div className="absolute top-0 left-0 h-1 w-24 bg-gradient-to-r from-indigo-500 to-pink-500 rounded-tr-full" />
 
                   <h3 className="text-xl font-semibold">{item.title}</h3>

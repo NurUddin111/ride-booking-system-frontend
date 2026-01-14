@@ -170,7 +170,7 @@ const UserProfile = () => {
                 )}
                 <Badge variant="outline" className="capitalize">
                   <Link
-                    to={`/api/v1/user/edit-profile/${id}`}
+                    to={`/user/edit-profile/${id}`}
                     state={{ user }}
                     className="flex items-center gap-1"
                   >
@@ -225,7 +225,7 @@ const UserProfile = () => {
                     <div>
                       <p className="text-sm text-gray-500">Vehicle Model</p>
                       <p className="font-medium">
-                        {user.vehicleInfo?.vehicleModel || "N/A"}
+                        {user.vehicleInfo?.brand || "N/A"}
                       </p>
                     </div>
                     <div>

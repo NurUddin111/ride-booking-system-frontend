@@ -13,6 +13,7 @@ import {
   FormDescription,
   FormField,
   FormItem,
+  FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 import {
@@ -43,13 +44,13 @@ const OtpForm = () => {
     navigate("/");
   }
 
-  console.log(email);
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
       otp: "",
     },
   });
+  
   const [verifyUser, { isLoading, isError }] = useVerifyUserMutation();
 
   const onSubmit = async (data: z.infer<typeof FormSchema>) => {
@@ -106,7 +107,7 @@ const OtpForm = () => {
                 name="otp"
                 render={({ field }) => (
                   <FormItem className="flex flex-col items-center justify-center">
-                    {/* <FormLabel>One-Time Password</FormLabel> */}
+                    <FormLabel className="sr-only">One-Time Password</FormLabel>
                     <FormControl>
                       <InputOTP maxLength={6} {...field}>
                         <InputOTPGroup>

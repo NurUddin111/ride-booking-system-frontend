@@ -1,7 +1,7 @@
-import { useId, useState } from "react";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
   DialogContent,
@@ -10,12 +10,10 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { useLocation, useNavigate } from "react-router";
 import { useForm } from "react-hook-form";
 import { motion, AnimatePresence } from "framer-motion";
 import Logo from "@/assets/icons/Logo";
-import { RiGoogleFill } from "@remixicon/react";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -42,7 +40,6 @@ const formSchema = z.object({
 });
 
 const LoginForm = () => {
-  const id = useId();
   const location = useLocation();
   const [loggedIn] = useState(location.state);
   console.log(loggedIn);
@@ -64,7 +61,6 @@ const LoginForm = () => {
       form.reset();
       navigate("/", { state: "loggedIn" });
       toast.success("Logged in successfully");
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       console.error(error);
       if (error?.data.message === "No account found with this email") {
@@ -197,43 +193,11 @@ const LoginForm = () => {
                     )}
                   />
 
-                  <div className="flex justify-between gap-2">
-                    <div className="flex items-center gap-2">
-                      <Checkbox id={`${id}-remember`} />
-                      <Label
-                        htmlFor={`${id}-remember`}
-                        className="font-normal text-muted-foreground"
-                      >
-                        Remember me
-                      </Label>
-                    </div>
-                    <a
-                      className="text-sm underline hover:no-underline"
-                      href="#"
-                    >
-                      Forgot password?
-                    </a>
-                  </div>
                   <Button type="submit" className="w-full">
                     Sign in
                   </Button>
                 </form>
               </Form>
-
-              <div className="flex items-center gap-3 before:h-px before:flex-1 before:bg-border after:h-px after:flex-1 after:bg-border">
-                <span className="text-xs text-muted-foreground">Or</span>
-              </div>
-
-              <Button className="bg-[#DB4437] text-white after:flex-1 hover:bg-[#DB4437]/90 w-full">
-                <span className="pointer-events-none me-2 flex-1">
-                  <RiGoogleFill
-                    className="opacity-60"
-                    size={16}
-                    aria-hidden="true"
-                  />
-                </span>
-                Login with Google
-              </Button>
             </>
           )}
         </motion.div>

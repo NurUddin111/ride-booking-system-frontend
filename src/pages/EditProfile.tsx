@@ -20,15 +20,6 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Separator } from "@/components/ui/separator";
 import { useLocation } from "react-router";
 import type { IUser } from "@/types/user";
 import { toast } from "sonner";
@@ -37,9 +28,27 @@ import { Spinner } from "@/components/ui/spinner";
 import { CircleAlert } from "lucide-react";
 
 const profileSchema = z.object({
-  name: z.string().min(2, {
-    message: "Name must be at least 2 characters.",
-  }),
+  name: z
+    .string({
+      error: (issue) =>
+        issue.input === undefined ? "Name is required" : "Invalid Name",
+    })
+    .min(2, {
+      error: (issue) => {
+        if (issue.code === "too_small") {
+          return `Name must be ${issue.minimum} characters long!`;
+        }
+      },
+    })
+    .max(50, {
+      error: (issue) => {
+        if (issue.code === "too_big") {
+          return `Name cannot exceed ${issue.minimum} characters!`;
+        }
+      },
+    })
+    .optional(),
+
   address: z
     .string({
       message: "Please enter a valid address",
@@ -47,40 +56,16 @@ const profileSchema = z.object({
     .optional(),
   phone: z
     .string({
-      message: "Please enter a valid phone number",
+      error: () => {
+        return "Invalid Phone";
+      },
+    })
+    .regex(/^(?:\+8801\d{9}|01\d{9})$/, {
+      error: () => {
+        return "Phone number must be valid for Bangladesh. Format: +8801XXXXXXXXX or 01XXXXXXXXX";
+      },
     })
     .optional(),
-  picture: z.string().optional(),
-  role: z.string({
-    message: "Please select a role.",
-  }),
-  vehicleInfo: z.object({
-    vehicleType: z
-      .string({ message: "Please select a vehicle type." })
-      .optional(),
-    vehicleModel: z
-      .string()
-      .min(1, { message: "Vehicle model is required." })
-      .optional(),
-    vehicleNumberPlate: z
-      .string()
-      .min(1, { message: "Number plate is required." })
-      .optional(),
-    documents: z.object({
-      drivingLicense: z
-        .string()
-        .min(1, { message: "Driving license is required." })
-        .optional(),
-      nidOrPassport: z
-        .string()
-        .min(1, { message: "NID/Passport is required." })
-        .optional(),
-      vehicleRegistration: z
-        .string()
-        .min(1, { message: "Vehicle registration is required." })
-        .optional(),
-    }),
-  }),
 });
 
 type ProfileFormValues = z.infer<typeof profileSchema>;
@@ -93,34 +78,17 @@ const EditProfile = () => {
     resolver: zodResolver(profileSchema),
     defaultValues: {
       name: user.name,
-      address: user.address || undefined,
-      phone: user.phone || undefined,
-      picture: user.picture || undefined,
-      role: user.role,
-      vehicleInfo: {
-        vehicleType: user.vehicleInfo?.vehicleType || undefined,
-        vehicleModel: user.vehicleInfo?.vehicleModel || undefined,
-        vehicleNumberPlate: user.vehicleInfo?.vehicleNumberPlate || undefined,
-        documents: {
-          drivingLicense:
-            user.vehicleInfo?.documents?.drivingLicense || undefined,
-          nidOrPassport:
-            user.vehicleInfo?.documents?.nidOrPassport || undefined,
-          vehicleRegistration:
-            user.vehicleInfo?.documents?.vehicleRegistration || undefined,
-        },
-      },
+      address: user.address || "",
+      phone: user.phone || "",
     },
   });
-
-  const role = form.watch("role");
 
   const [updateUser, { isLoading, isError }] = useUpdateUserMutation();
 
   const onSubmit = async (userDetails: ProfileFormValues) => {
     try {
       console.log(userDetails);
-      const res = await updateUser({ id, userDetails });
+      const res = await updateUser({ userId: id, userDetails });
       console.log("res", res);
       toast.success("Profile updated successfully!");
     } catch (error) {
@@ -152,9 +120,7 @@ const EditProfile = () => {
         <Card className="w-full max-w-2xl mx-auto">
           <CardHeader>
             <CardTitle>Edit Profile</CardTitle>
-            <CardDescription>
-              Update your personal and vehicle information.
-            </CardDescription>
+            <CardDescription>Update your personal information.</CardDescription>
           </CardHeader>
           <CardContent>
             <Form {...form}>
@@ -180,36 +146,12 @@ const EditProfile = () => {
                   />
                   <FormField
                     control={form.control}
-                    name="role"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Role</FormLabel>
-                        <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
-                        >
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select a role" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="RIDER">RIDER</SelectItem>
-                            <SelectItem value="DRIVER">DRIVER</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
                     name="phone"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Phone</FormLabel>
                         <FormControl>
-                          <Input placeholder="+1234567890" {...field} />
+                          <Input placeholder="+88012345678" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -222,126 +164,16 @@ const EditProfile = () => {
                       <FormItem>
                         <FormLabel>Address</FormLabel>
                         <FormControl>
-                          <Input placeholder="123 Main St" {...field} />
+                          <Input
+                            placeholder="House 24, Road 113/A Gulshan-2 Dhaka-1212 BANGLADESH"
+                            {...field}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
                 </div>
-
-                {/* Picture Upload Field (Placeholder) */}
-                <div className="space-y-2">
-                  <Label htmlFor="picture">Profile Picture</Label>
-                  <Input id="picture" type="file" />
-                </div>
-
-                {/* Conditional Fields for DRIVER Role */}
-                {role === "DRIVER" && (
-                  <>
-                    <Separator />
-                    <h3 className="text-lg font-semibold">
-                      Vehicle Information
-                    </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <FormField
-                        control={form.control}
-                        name="vehicleInfo.vehicleType"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Vehicle Type</FormLabel>
-                            <FormControl>
-                              <Input
-                                placeholder="e.g., Car, Motorbike"
-                                {...field}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name="vehicleInfo.vehicleModel"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Vehicle Model</FormLabel>
-                            <FormControl>
-                              <Input
-                                placeholder="e.g., Toyota Camry"
-                                {...field}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name="vehicleInfo.vehicleNumberPlate"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Number Plate</FormLabel>
-                            <FormControl>
-                              <Input placeholder="e.g., ABC-123" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-
-                    <Separator />
-                    <h3 className="text-lg font-semibold">Documents</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <FormField
-                        control={form.control}
-                        name="vehicleInfo.documents.drivingLicense"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Driving License</FormLabel>
-                            <FormControl>
-                              <Input placeholder="License Number" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name="vehicleInfo.documents.nidOrPassport"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>NID or Passport</FormLabel>
-                            <FormControl>
-                              <Input
-                                placeholder="NID/Passport Number"
-                                {...field}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name="vehicleInfo.documents.vehicleRegistration"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Vehicle Registration</FormLabel>
-                            <FormControl>
-                              <Input
-                                placeholder="Registration Number"
-                                {...field}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                  </>
-                )}
 
                 <Button type="submit" className="w-full mt-6">
                   Update Profile

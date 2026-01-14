@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -62,7 +63,6 @@ const RideReqForm = () => {
   });
 
   const navigate = useNavigate();
-  //   const [signinUser, { isLoading, isError }] = useSigninUserMutation();
   const [createRide, { isLoading, isError }] = useCreateRideMutation();
   const [penalties, setPenalties] = useState(false);
   const [activeRide, setActiveRide] = useState(false);
@@ -75,7 +75,6 @@ const RideReqForm = () => {
       form.reset();
       navigate("/");
       toast.success("Ride Requested Successfully!");
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       console.error(error);
       const errMsg = error.data.message;
@@ -282,7 +281,6 @@ const RideReqForm = () => {
               </Form>
             </>
           )}
-          
         </motion.div>
       </DialogContent>
     </Dialog>

@@ -11,7 +11,7 @@ interface IDocuments {
 
 interface IVehicleInfo {
   vehicleType: string;
-  vehicleModel: string;
+  brand: string;
   vehicleNumberPlate: string;
   vehicleLocation: {
     coordinates: {
@@ -39,6 +39,7 @@ interface IUser {
   isOnline?: boolean;
   auths: IAuthProvider[];
   penalties?: number;
+  bookings?: string[];
   createdAt?: { date: string; time: string };
 }
 

@@ -43,6 +43,7 @@ const CredentialsForm = () => {
       email: "",
     },
   });
+
   const [createUser, { isLoading, isError }] = useCreateUserRequestMutation();
 
   const onSubmit = async (userDetails: z.infer<typeof formSchema>) => {
@@ -55,6 +56,7 @@ const CredentialsForm = () => {
       console.log(error);
     }
   };
+  
   return (
     <div>
       {isLoading && (
